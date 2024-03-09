@@ -1,18 +1,12 @@
 const express = require('express');
-const path = require('path');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const db = require('./database/index.js');
-const fs = require('fs');
-const https = require('https');
 const http = require('http')
-const { Server } = require("socket.io");
 const cors = require('cors');
 const UserModel = require('./schemas/User.js')
 const JournalModel = require('./schemas/Journal.js')
 const CommentModel = require('./schemas/Comment.js')
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const dotenv = require("dotenv");
 
 // Errors
@@ -67,6 +61,8 @@ app.use((err, req, res, next) => {
 app.get('/', (req, res) => {
     res.send("/");
 });
+
+
 
 // Catch all other routes
 app.get('*', asyncWrapper(async (req, res) => {
