@@ -95,7 +95,6 @@ app.put('/journals/:id', asyncWrapper(async (req, res) => {
 }));
 
 //  Delete a journal entry
-//  not tested
 app.delete('/journals/:id', asyncWrapper(async (req, res) => {
     const journal = await JournalModel.findByIdAndDelete(req.params.id);
     if (!journal) {
@@ -109,7 +108,7 @@ app.get('/journals/random/:id', asyncWrapper(async (req, res) => {
     const excludeId = req.params.id; // Extracting the ID to exclude from the path parameter
     
     const randomJournal = await JournalModel.aggregate([
-        { $match: { _id: { $ne: mongoose.Types.ObjectId(excludeId) } } }, // Exclude the journal with the specified ID
+        { $match: { _id: { $ne: new mongoose.Types.ObjectId(excludeId) } } }, // Correctly use 'new' keyword
         { $sample: { size: 1 } } // Randomly select one of the remaining journals
     ]);
 
