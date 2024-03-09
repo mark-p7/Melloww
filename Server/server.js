@@ -249,6 +249,28 @@ app.get('/journals/random/:id', asyncWrapper(async (req, res) => {
     res.json(randomJournal[0]); // Return the found journal
 }));
 
+const createUser = async (username, email) => {
+    try {
+      const newUser = new UserModel({ username, email });
+      await newUser.save();
+      return newUser;
+    } catch (error) {
+      throw error; // Error handling should be more sophisticated based on your needs
+    }
+  };
+
+  app.get('/users/:identifier', asyncWrapper(async (req, res) => {
+    const identifier = req.params.identifier;
+    let user = await UserModel.findOne({ $or: [{username: identifier}, {email: identifier}] });
+    
+    if (!user) {
+        // Assuming we decide to create a user if not found. 
+        // You'll need to decide how username and email are determined in this scenario.
+        user = await createUser(username, email);
+    }
+
+    res.json(user);
+}));
 
 // Catch all other routes
 app.get('*', asyncWrapper(async (req, res) => {
