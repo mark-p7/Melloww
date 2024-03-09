@@ -67,3 +67,24 @@ app.use((err, req, res, next) => {
 app.get('/', (req, res) => {
     res.send("/");
 });
+
+// Catch all other routes
+app.get('*', asyncWrapper(async (req, res) => {
+    throw new Error("Invalid route: please check documentation")
+}))
+
+// Next Middleware to handle errors
+app.use((err, req, res, next) => {
+    if (!err.code) {
+        err.code = 500;
+    }
+    console.log(req.body)
+    // Sends detailed error message to client
+    res.status(err.code).json({ errName: err.name, errMsg: err.message, errCode: err.code, errStack: err.stack })
+    // Sends user friendly error message to client
+    //res.status(err.code).json({ errName: err.name, errMsg: err.message, errCode: err.code })
+})
+
+server.listen(port, () => {
+    console.log(`Example app listening at https://localhost:${port}`);
+});
