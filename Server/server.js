@@ -174,6 +174,20 @@ app.post('/api/comment/getByLikes', asyncWrapper(async (req, res) =>  {
     }
 }));
 
+// Increase likes
+app.put('/comment/like/:id', asyncWrapper(async (req, res) => {
+    try{
+        const comment = await CommentModel.findById(req.params.id);
+        if(!comment) {
+            return res.status(404).send("Comment not found")
+        }
+        
+    } catch (err) {
+        throw new DbError("Cannot like comment")
+    }
+
+}))
+
 //  Get all journals
 app.get('/journals', asyncWrapper(async (req, res) => {
     const journals = await JournalModel.find();

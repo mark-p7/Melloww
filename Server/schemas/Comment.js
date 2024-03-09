@@ -8,14 +8,17 @@ const Comment = new Schema({
     trim: true,
   },
   authorId: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
+    type: String,
     required: true,
   },
   date: {
     type: Date,
     default: Date.now,
   },
+  likes: {
+    type: Number,
+    default: 0
+  }
 });
 
 module.exports = mongoose.model("Comment", Comment);
