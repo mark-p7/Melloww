@@ -113,14 +113,14 @@ app.post('/api/comment/create', asyncWrapper(async (req, res) =>  {
         const journal = await JournalModel.findOne({ _id: journalId})
 
         const comment = await CommentModel.create({
-            author: user.userName,
+            author: user.username,
             commentText: commentText
         })
 
         console.log(comment);
 
-        user.comments.push(comment._id);
-        journal.comments.push(comment._id);
+        user.commentIds.push(comment._id);
+        journal.CommentID.push(comment._id);
 
         await user.save();
         await journal.save();
@@ -139,7 +139,7 @@ app.post('/api/comment/getByDate', asyncWrapper(async (req, res) =>  {
     try {
         const journal = await JournalModel.findOne({ _id: journalId})
 
-        const commentIds = journal.comments;
+        const commentIds = journal.CommentID;
         const comments = [];
         for(let i = 0; i < commentIds.length; i++) {
             const comment = await CommentModel.findOne({_id: commentIds[i]})
@@ -159,7 +159,7 @@ app.post('/api/comment/getByLikes', asyncWrapper(async (req, res) =>  {
     try {
         const journal = await JournalModel.findOne({ _id: journalId})
 
-        const commentIds = journal.comments;
+        const commentIds = journal.CommentID;
         const comments = [];
         for(let i = 0; i < commentIds.length; i++) {
             const comment = await CommentModel.findOne({_id: commentIds[i]})
@@ -181,12 +181,16 @@ app.put('/comment/like/:id', asyncWrapper(async (req, res) => {
         if(!comment) {
             return res.status(404).send("Comment not found")
         }
-        
+
+        comment.likes++;
+
+        await comment.save();
+
     } catch (err) {
         throw new DbError("Cannot like comment")
     }
 
-}))
+}));
 
 //  Get all journals
 app.get('/journals', asyncWrapper(async (req, res) => {
