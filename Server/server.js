@@ -133,17 +133,19 @@ app.post('/api/comment/create', asyncWrapper(async (req, res) =>  {
 }));
 
 // Get comments by date
-app.post('/api/comment/getByDate', asyncWrapper(async (req, res) =>  {
-    const { journalId } = req.body;
-
+app.post('/api/comment/getByDate/:id', asyncWrapper(async (req, res) =>  {
     try {
-        const journal = await JournalModel.findOne({ _id: journalId})
+        const journal = await JournalModel.findById(req.params.id)
+
+        if(!journal){
+            return
+        }
 
         const commentIds = journal.CommentID;
         const comments = [];
         for(let i = 0; i < commentIds.length; i++) {
             const comment = await CommentModel.findOne({_id: commentIds[i]})
-            comments.push[comment]
+            comments.push(comment)
         }
 
         res.status(200).json(comments);
@@ -153,17 +155,15 @@ app.post('/api/comment/getByDate', asyncWrapper(async (req, res) =>  {
 }));
 
 // Get comments by likes
-app.post('/api/comment/getByLikes', asyncWrapper(async (req, res) =>  {
-    const { journalId } = req.body;
-
+app.get('/api/comment/getByLikes/:id', asyncWrapper(async (req, res) =>  {
     try {
-        const journal = await JournalModel.findOne({ _id: journalId})
+        const journal = await JournalModel.findById(req.params.id)
 
         const commentIds = journal.CommentID;
         const comments = [];
         for(let i = 0; i < commentIds.length; i++) {
             const comment = await CommentModel.findOne({_id: commentIds[i]})
-            comments.push[comment]
+            comments.push(comment)
         }
 
         comments.sort((a, b) => a.likes - b.likes)
