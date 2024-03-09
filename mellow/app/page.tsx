@@ -6,10 +6,9 @@ import { useRouter } from 'next/navigation';
 export default function Home() {
 	const { user, error, isLoading } = useUser();
 	const router = useRouter();
-
+	
 	// If the user is not logged in, redirect to the login page
 	if (!user && !isLoading) {
-		// console.log(user);
 		router.push("/login");
 	}
 
