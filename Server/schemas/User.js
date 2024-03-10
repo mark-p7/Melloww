@@ -26,6 +26,12 @@ const User = new Schema({
       ref: "Journal",
     },
   ],
+  commentIds: [
+    {
+        type: Schema.Types.ObjectId,
+        ref: "Comment"
+    }
+  ]
 });
 
 module.exports = mongoose.model("Users", User);

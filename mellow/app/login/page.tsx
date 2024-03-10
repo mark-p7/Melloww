@@ -10,7 +10,7 @@ export default function Login() {
 
     // If the user is logged in, redirect to the home page
     if (user && !isLoading) {
-        router.push("/");
+        router.push("/feed");
     }
 
     return (
