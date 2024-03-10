@@ -28,7 +28,9 @@ export default function Feed() {
   const { user, error, isLoading } = useUser();
   const router = useRouter();
   const [journals, setJournals] = useState<Journal[]>([]);
-  const enteriesPerPage = 1;
+  const enteriesPerPage = 6;
+  const lastPage = Math.ceil(journals.length/enteriesPerPage) * enteriesPerPage;
+  console.log(lastPage);
   const [startIndex, setStartIndex] = useState(0);
   const [endIndex, setEndIndex] = useState(enteriesPerPage);
 
@@ -106,7 +108,7 @@ export default function Feed() {
           <PaginationItem>
             <PaginationNext
               className={
-                endIndex === (journals.length/enteriesPerPage) ? "pointer-events-none opacity-50" : undefined
+                endIndex === lastPage ? "pointer-events-none opacity-50" : undefined
               }
               onClick={() => {
                 setStartIndex(startIndex + enteriesPerPage); 
