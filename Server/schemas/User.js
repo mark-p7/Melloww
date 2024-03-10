@@ -31,7 +31,11 @@ const User = new Schema({
         type: Schema.Types.ObjectId,
         ref: "Comment"
     }
-  ]
+  ],
+  likedJournals: [{
+    type: Schema.Types.ObjectId,
+    ref: "Journal",
+  }],
 });
 
 module.exports = mongoose.model("Users", User);

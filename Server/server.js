@@ -231,7 +231,47 @@ app.get('/journals/random/:id', asyncWrapper(async (req, res) => {
     res.json(randomJournal[0]); // Return the found journal
 }));
 
+// checking if the journal is liked or not
+app.get('/journals/:journalId/isLiked', async (req, res) => {
+    const { journalId } = req.params;
+    const userId = req.user._id; // Assuming you have a middleware that sets req.user
+  
+    try {
+      const user = await UserModel.findById(userId);
+      const isLiked = user.likedJournals.some(journal => journal.equals(journalId));
+      
+      res.status(200).json({ isLiked });
+    } catch (error) {
+      res.status(500).json({ message: 'Error checking like status', error });
+    }
+  });
 
+  //  Adding a like to a journal or removing it if already liked
+  app.post('/journals/:journalId/toggleLike', async (req, res) => {
+    const { journalId } = req.params;
+    const userId = req.user._id; // Assuming you have a middleware that sets req.user
+  
+    try {
+      // Check if the journal is already liked by the user
+      const user = await UserModel.findById(userId);
+      const isLiked = user.likedJournals.some(journal => journal.equals(journalId));
+  
+      if (isLiked) {
+        // If liked, pull/remove the journalId from user's likedJournals and decrement the likes count
+        await UserModel.findByIdAndUpdate(userId, { $pull: { likedJournals: journalId } });
+        await JournalModel.findByIdAndUpdate(journalId, { $pull: { likes: userId } });
+      } else {
+        // If not liked, push/add the journalId to user's likedJournals and increment the likes count
+        await UserModel.findByIdAndUpdate(userId, { $addToSet: { likedJournals: journalId } });
+        await JournalModel.findByIdAndUpdate(journalId, { $addToSet: { likes: userId } });
+      }
+  
+      res.status(200).json({ message: isLiked ? 'Journal disliked' : 'Journal liked' });
+    } catch (error) {
+      res.status(500).json({ message: 'Error toggling like status', error });
+    }
+  });
+  
 // Catch all other routes
 app.get('*', asyncWrapper(async (req, res) => {
     throw new Error("Invalid route: please check documentation")

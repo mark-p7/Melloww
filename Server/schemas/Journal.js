@@ -12,7 +12,11 @@ const journalSchema = new mongoose.Schema({
   Color: {
     default: '#CCCCCC',
     type: String
-  }
+  },
+  likesCount: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const JournalModel = mongoose.model('Journal', journalSchema);
