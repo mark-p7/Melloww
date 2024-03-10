@@ -1,7 +1,18 @@
 require("dotenv").config(); // Load environment variables from .env file
 const axios = require("axios");
 
-async function getCssColorFromMood(moodDescription) {
+async function getCssColorFromMood(journalDescription) {
+  const systemMessage =
+    "You will be given a short journal entry reflecting a person's mood. Based on the emotion conveyed—be it joy, sadness, calmness, love, energy, anxiety, or hope—your task is to generate a pastel hex code that embodies this mood. Consider the following associations: \n" +
+    "+ Joy: pastels like yellow(#ffec85) or light orange(#ffcc99).\n" +
+    "+ Sadness: Subdued pastels like light blue or pale gray.\n" +
+    "+ Calmness: Soothing pastels like mint green or sky blue.\n" +
+    "+ Love: Tender pastels like pink or peach.\n" +
+    "+ Energy: Vibrant pastels like coral or turquoise.\n" +
+    "+ Anxiety: Muted pastels like dark gray or steel blue.\n" +
+    "+ Hope: Uplifting pastels like light purple or cream.\n" +
+    "Choose a pastel shade that aligns with the journal's emotional tone, ensuring the color's intensity and softness reflect the mood accurately.But remember not to have bright colors, only light and soft colors.";
+
   try {
     const response = await axios.post(
       "https://api.openai.com/v1/chat/completions",
@@ -10,12 +21,11 @@ async function getCssColorFromMood(moodDescription) {
         messages: [
           {
             role: "system",
-            content:
-              'You will be provided with a description of a short journal entry of a person, and your task is to generate the CSS code for a pastel color that matches it. Write your output in json with a single key called "css_code".Keep in mind that the description should match the color.',
+            content: systemMessage,
           },
           {
             role: "user",
-            content: moodDescription,
+            content: journalDescription,
           },
         ],
         temperature: 0.7,
@@ -29,21 +39,31 @@ async function getCssColorFromMood(moodDescription) {
         },
       }
     );
-    // Assuming the response is in the correct format, directly returning it.
-    // You might want to add error checking or formatting here as necessary.
-    return response.data.choices[0].message.content;
+
+    // Extract the hex code using a regular expression
+    const hexCodeMatch = response.data.choices[0].message.content.match(
+      /#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/
+    );
+    if (hexCodeMatch && hexCodeMatch[0]) {
+      // Return the first matched hex code
+      return hexCodeMatch[0];
+    } else {
+      throw new Error("No valid hex code found in the response");
+    }
   } catch (error) {
-    throw new Error("Error fetching CSS color from mood description");
+    throw new Error(
+      "Error fetching CSS color from mood description: " + error.message
+    );
   }
 }
 
-// Test with the mood description "Blue sky at dusk."
-getCssColorFromMood(
-  "Today was a good day. I felt productive and accomplished all my tasks."
-)
-  .then((cssCode) => {
-    console.log(cssCode); // Log the resulting CSS code
-  })
-  .catch((error) => {
-    console.error(error.message); // Log any errors
-  });
+// // Testing with example mood description
+// getCssColorFromMood("my mother scolded me today. im angry")
+//   .then((hexCode) => {
+//     console.log(hexCode);
+//   })
+//   .catch((error) => {
+//     console.error(error.message);
+//   });
+
+module.exports = { getCssColorFromMood };
