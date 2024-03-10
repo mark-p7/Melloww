@@ -25,7 +25,7 @@ async function getCssColorFromMood(journalDescription) {
           },
           {
             role: "user",
-            content: journalDescription,
+            content: journalDescription.Title + ": " + journalDescription.EntryText,
           },
         ],
         temperature: 0.7,

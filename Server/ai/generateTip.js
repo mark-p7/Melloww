@@ -4,6 +4,8 @@ const axios = require("axios");
 
 // Function to submit a journal entry to the OpenAI API and retrieve mental health tips
 async function getMentalHealthTips(journalText) {
+  console.log(process.env.OPENAI_API_KEY)
+  console.log(journalText)
   try {
     const prompt = `As Mellow, your friend, I'm here to listen and help. After reading your thoughts: I want to provide a heartfelt, concise mental health tip in about a sentence, as a real friend would.`;
 
@@ -18,7 +20,7 @@ async function getMentalHealthTips(journalText) {
           },
           {
             role: "user",
-            content: journalText,
+            content: journalText.Title + ": " + journalText.EntryText,
           },
         ],
         temperature: 0.7,

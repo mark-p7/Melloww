@@ -267,8 +267,9 @@ app.get('/journals/:id', asyncWrapper(async (req, res) => {
 //  Create new journal entry
 app.post('/journals', asyncWrapper(async (req, res) => {
     const journal = new JournalModel(req.body);
+    const [color, tip] = await feed(journal);
     await journal.save();
-    res.status(201).send(journal);
+    res.status(201).send({ journal, color, tip });
 }));
 
 //   Update an existing journal entry
@@ -279,6 +280,17 @@ app.put('/journals/:id', asyncWrapper(async (req, res) => {
         return res.status(404).send('Journal not found');
     }
     res.json(journal);
+}));
+
+app.post("/journals/changeColor", asyncWrapper(async (req, res) => {
+    const journal = await JournalModel.findById(req.body.journalId);
+    const color = req.body.color;
+    if (!journal) {
+        return res.status(404).send('Journal not found');
+    }
+    journal.Color = color;
+    await journal.save();
+    res.json(color);
 }));
 
 //  Delete a journal entry
@@ -306,17 +318,15 @@ app.get('/journals/random/:id', asyncWrapper(async (req, res) => {
     res.json(randomJournal[0]); // Return the found journal
 }));
 
-
 //generate color and tip based on
 async function feed(journal) {
   try {
-    const colorPromise = getCssColorFromMood(journal);
-    const tipPromise = getMentalHealthTips(journal);
+    const color = await getCssColorFromMood(journal);
+    const tip = await getMentalHealthTips(journal);
 
-    const color = await colorPromise;
-    const tipResult = await tipPromise;
-
-    return [color, tipResult];
+    console.log("Color: ", color);
+    console.log("Tip: ", tip);
+    return [color, tip];
   } catch (error) {
     throw new Error(`Error in feed function: ${error.message}`);
   }
