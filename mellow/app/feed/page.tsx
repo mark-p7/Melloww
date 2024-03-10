@@ -5,23 +5,59 @@ import { useRouter } from "next/navigation";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useState, useEffect } from 'react';
 import Navbar from '../ui/Navbar';
+import axios from 'axios';
+import Records from '@/components/ui/journal';
+import Pagination from '@/components/ui/pagination';
+
+interface Journal {
+  EntryID: string; // Change this based on your actual data structure
+  Emoji: string;
+  Title: string;
+  // Add other properties as needed
+}
 
 export default function Feed() {
   const { user, error, isLoading } = useUser();
   const router = useRouter();
+  const [journals, setJournals] = useState<Journal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [recordsPerPage] = useState(6);
 
   // Example journals data - replace this with actual data fetching logic
-  const [journals, setJournals] = useState([
-    { id: 1, emoji: '😊', title: 'Fun day at work' },
-    { id: 2, emoji: '🚀', title: 'Started a new project' },
-    { id: 3, emoji: '🌟', title: 'Met with an old friend' },
+  // const [journals, setJournals] = useState([
+  //   { id: 1, emoji: '😊', title: 'Fun day at work' },
+  //   { id: 2, emoji: '🚀', title: 'Started a new project' },
+  //   { id: 3, emoji: '🌟', title: 'Met with an old friend' },
 
-  ]);
+  // ]);
 
   useEffect(() => {
-    // Here you would fetch the journals from your API instead of using the static data above
-  }, []);
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/journals");
+        setJournals(response.data);
+        console.log("Got journals");
+        console.log(response.data);
+        setLoading(false);        
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+  
+    fetchData();
+  
+  }, []); 
+  
+  useEffect(() => {
+    console.log("Updated Journals:", journals);
+  }, [journals]);
 
+  const indexOfLastRecord = currentPage * recordsPerPage;
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+  const currentRecords = journals.slice(indexOfFirstRecord, indexOfLastRecord);
+  const nPages = Math.ceil(journals.length / recordsPerPage)
+  
   return (
     <>
       <Navbar />
@@ -33,24 +69,12 @@ export default function Feed() {
           {/* ... other content */}
 
           {/* Cards container */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 mt-8">
-            {journals.map((journal) => (
-              <div
-                key={journal.id}
-                className="flex flex-col items-center justify-center p-10 rounded-lg shadow-lg"
-                style={{ width: '250px', backgroundColor: 'rgba(255, 255, 255, 0.5)' }}
-              >
-                {/* Emoji container */}
-                <div className="w-20 h-20 flex items-center justify-center rounded mb-4" >
-                  <span className="text-5xl">{journal.emoji}</span>
-                </div>
-                {/* Title */}
-                <span className="text-md font-bold text-gray-700">
-                  {journal.title}
-                </span>
-              </div>
-            ))}
-          </div>
+          <Records journals={currentRecords}/>
+          <div className="justify-self-center"><Pagination
+            nPages={nPages}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+          /></div>
         </div>
       </div>
     </>
