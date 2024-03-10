@@ -192,7 +192,7 @@ app.put('/comment/like/:id', asyncWrapper(async (req, res) => {
 
 //  Get all journals
 app.get('/journals', asyncWrapper(async (req, res) => {
-    const journals = await JournalModel.find();
+    const journals = await JournalModel.find({ Public: true });
     res.json(journals);
 }));
 
