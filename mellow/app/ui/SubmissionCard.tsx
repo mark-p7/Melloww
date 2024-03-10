@@ -79,7 +79,7 @@ export default function SubmissionCard() {
     justifyContent: 'center',
     width: '60%',
     height: '800px',
-    backgroundColor: '#e6e6e6',
+    //backgroundColor: '#e6e6e6',
     borderRadius: '8px',
   };
 
@@ -118,12 +118,12 @@ export default function SubmissionCard() {
       <ReactCardFlip isFlipped={flip} flipDirection="vertical" containerStyle={containerStyle}>
         {/* Front side */}
         <div className="front-card m-4 p-4 rounded-md text-center shadow-xl shadow-black/60" style={cardStyle}>
-          <p className="text-4xl font-bold mb-4">Front</p>
+          <p className="text-4xl font-bold mb-4"></p>
 
-          <div className="picker-container flex items-center justify-center p-4">
+          <div className="picker-container flex items-center justify-center p-4 h-full">
             <button className="flex items-center justify-center" onClick={openModal}>
               {selectedEmoji && <img className="selected-emoji w-12 h-12" src={selectedEmoji} alt="Selected Emoji" />}
-              {!selectedEmoji && <span className="rounded-full p-2 border border-black bg-transparent text-black focus:outline-none">Pick an emote</span>}
+              {!selectedEmoji && <span className="rounded-full p-10 border border-black bg-transparent text-5xl focus:outline-none">Pick an emote</span>}
             </button>
             <Modal
               isOpen={isModalOpen}
@@ -138,7 +138,7 @@ export default function SubmissionCard() {
             </Modal>
           </div>
           <button
-            className="w-full px-4 py-2 text-s font-bold bg-purple-200 rounded-md mt-4"
+            className="w-full px-4 py-2 text-s font-bold bg-purple-200 rounded-md mt-4 mt-auto"
             onClick={() => setFlip(!flip)}
           >
             Flip
@@ -147,20 +147,27 @@ export default function SubmissionCard() {
 
         {/* Back side */}
         <div className="back-card m-4 p-4 rounded-md text-center shadow-xl shadow-black/60" style={cardStyle}>
-          <p className="text-4xl font-bold mb-4">Back</p>
+          <p className="text-4xl font-bold mb-4"></p>
 
-          <div className="grid gap-2">
-            <input name="Title" className="border rounded-md p-2 text-sm" placeholder="Enter your text here..." value={formData.Title} onChange={handleChange} type="text" />
+          <div className="grid gap-10">
+            <input
+              name="Title"
+              className="border rounded-md p-2 text-5xl" // Adjust text-base or other size classes as needed
+              placeholder="Name your journal entry..."
+              value={formData.Title}
+              onChange={handleChange}
+              type="text"
+            />
             <textarea
               name="EntryText"
-              className="border rounded-md p-2 text-sm max-h-32" // Adjust max-h-32 as needed
-              placeholder="Enter your text here..."
+              className="border rounded-md p-2 text-2xl h-44 max-h-80" // Adjust text-base or other size classes as needed
+              placeholder="Describe your day..."
               value={formData.EntryText}
               onChange={handleChange}
             />
           </div>
           <button
-            className="w-full px-4 py-2 text-s font-bold bg-purple-200 rounded-md mt-4"
+            className="w-full px-4 py-2 text-s font-bold bg-purple-200 rounded-md mt-4 mt-auto"
             onClick={() => setFlip(!flip)}
           >
             Flip
