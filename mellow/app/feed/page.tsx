@@ -26,7 +26,6 @@ export default function Feed() {
           <div className="w-full max-w-screen-xl"> {/* Adjust max width as needed */}
             
             <h1 className="text-left font-bold tracking-tighter text-5xl mb-5">
-              Me<span className="text-amber-400">llow</span>
             </h1>
             {/* ... other content */}
     
