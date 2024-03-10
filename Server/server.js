@@ -261,14 +261,9 @@ app.get('/journals/random', asyncWrapper(async (req, res) => {
 }));
 
 app.post('/journals/user', asyncWrapper(async (req, res) => {
-    const journals = await JournalModel.find();
-    const userJournals = [];
-    for(let i = 0; i < journals.length; i++) {
-        if(journals[i].authorId == req.body.userId){
-            userJournals.push(journals[i])
-        }
-    }
-    res.json(userJournals);
+    const journals = await JournalModel.find({AuthorId: req.body.userId});
+    console.log(req.body.userId);
+    res.json(journals);
 }));
 
 // journals by date
