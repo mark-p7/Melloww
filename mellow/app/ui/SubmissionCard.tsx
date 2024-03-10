@@ -2,21 +2,28 @@ import React, { useState } from 'react';
 import ReactCardFlip from 'react-card-flip';
 import Picker from "emoji-picker-react";
 import Modal from "react-modal";
+import ToggleButton from '@mui/material/ToggleButton';
 
 export default function SubmissionCard() {
   const [flip, setFlip] = useState(false);
   const [selectedColor, setSelectedColor] = useState('#FECBC4');
   const [selectedEmoji, setSelectedEmoji] = useState(null);
-  //const [showPicker, setShowPicker] = useState(false);
+  const [selectedPublic, setSelectedPublic] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     author: "",
     title: "",
     content: "",
     emote: "",
+    color: "#FECBC4",
+    isPublic: false
   });
   const handleColorChange = (color) => {
     setSelectedColor(color);
+    setFormData((prevData) => ({
+      ...prevData,
+      ["color"]: color,
+    }));
   };
 
   const onEmojiClick = (event, emojiObject) => {
@@ -147,6 +154,20 @@ export default function SubmissionCard() {
       <button className="w-40 px-4 py-2 text-xl font-bold bg-purple-200 rounded-md" type="submit" onClick={handleSubmit}>
         Submit
       </button>
+
+      <ToggleButton
+        value=""
+        selectedPublic={selectedPublic}
+        onChange={() => {
+          setSelectedPublic(!selectedPublic);
+          setFormData((prevData) => ({
+            ...prevData,
+            ["isPublic"]: !selectedPublic,
+          }));
+        }}
+      >
+        {selectedPublic ? "Public" : "Private"}
+      </ToggleButton>
 
     </div>
   );
