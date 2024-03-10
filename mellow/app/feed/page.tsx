@@ -35,7 +35,7 @@ export default function Feed() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/journals");
+        const response = await axios.get("http://localhost:8080/journals/public");
         setJournals(response.data);
         console.log("Got journals");
         console.log(response.data);
