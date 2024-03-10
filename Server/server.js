@@ -271,6 +271,26 @@ app.get('/journals/:journalId/isLiked', async (req, res) => {
       res.status(500).json({ message: 'Error toggling like status', error });
     }
   });
+
+  app.get('/users/:userId/journals', async (req, res) => {
+    const { userId } = req.params;
+  
+    try {
+      // Find all journals where the AuthorId matches the userId provided
+      const userJournals = await JournalModel.find({ AuthorId: userId });
+  
+      // Check if any journals were found
+      if (!userJournals.length) {
+        return res.status(404).json({ message: 'No journals found for this user.' });
+      }
+  
+      // Respond with the array of journals
+      res.status(200).json(userJournals);
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching user journals', error });
+    }
+  });
+  
   
 // Catch all other routes
 app.get('*', asyncWrapper(async (req, res) => {
