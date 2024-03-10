@@ -21,9 +21,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <UserProvider>
-        <body className={cn("", poppins.variable)}>{children}</body>
+        <body className={cn("", poppins.variable)} suppressHydrationWarning>{children}</body>
       </UserProvider>
     </html>
   );

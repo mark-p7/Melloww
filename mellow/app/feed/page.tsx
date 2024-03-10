@@ -18,9 +18,11 @@ import {
 } from "@/components/ui/pagination"
 
 interface Journal {
+  _id: string;
   EntryID: string; // Change this based on your actual data structure
   Emoji: string;
   Title: string;
+  Color: string;
   // Add other properties as needed
 }
 
@@ -29,7 +31,7 @@ export default function Feed() {
   const router = useRouter();
   const [journals, setJournals] = useState<Journal[]>([]);
   const enteriesPerPage = 6;
-  const lastPage = Math.ceil(journals.length/enteriesPerPage) * enteriesPerPage;
+  const lastPage = Math.ceil(journals.length / enteriesPerPage) * enteriesPerPage;
   console.log(lastPage);
   const [startIndex, setStartIndex] = useState(0);
   const [endIndex, setEndIndex] = useState(enteriesPerPage);
@@ -74,48 +76,49 @@ export default function Feed() {
           {/* ... other content */}
           {/* Cards container */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 mt-8">
-             {journals.slice(startIndex, endIndex).map((journal) => (
-               <div
-                 key={journal.EntryID}
-                 className="flex flex-col items-center justify-center p-10 rounded-lg shadow-lg"
-                 style={{ width: '250px', backgroundColor: 'rgba(255, 255, 255, 0.5)' }}
-               >
-                 {/* Emoji container */}
-                 <div className="w-20 h-20 flex items-center justify-center rounded mb-4" >
-                   <span className="text-5xl">{journal.Emoji}</span>
-                 </div>
-                 {/* Title */}
-                 <span className="text-md font-bold text-gray-700">
-                   {journal.Title}
-                 </span>
-               </div>
-             ))}
-           </div>
+            {journals.slice(startIndex, endIndex).map((journal) => (
+              <div
+                key={journal.EntryID}
+                className="flex flex-col items-center justify-center p-10 rounded-lg shadow-lg cursor-pointer"
+                style={{ width: '250px', backgroundColor: `${journal.Color}` }}
+                onClick={() => { router.push(`/feed/${journal?._id}`) }}
+              >
+                {/* Emoji container */}
+                <div className="w-20 h-20 flex items-center justify-center rounded mb-4" >
+                  <span className="text-5xl">{journal.Emoji}</span>
+                </div>
+                {/* Title */}
+                <span className="text-md font-bold text-gray-700">
+                  {journal.Title}
+                </span>
+              </div>
+            ))}
+          </div>
           <Pagination className='absolute inset-x-0 bottom-0'>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              className={
-                startIndex === 0 ? "pointer-events-none opacity-50" : undefined
-              }
-              onClick={() => {
-                setStartIndex(startIndex - enteriesPerPage);
-                setEndIndex(endIndex - enteriesPerPage);
-              }} />
-          </PaginationItem>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  className={
+                    startIndex === 0 ? "pointer-events-none opacity-50" : undefined
+                  }
+                  onClick={() => {
+                    setStartIndex(startIndex - enteriesPerPage);
+                    setEndIndex(endIndex - enteriesPerPage);
+                  }} />
+              </PaginationItem>
 
-          <PaginationItem>
-            <PaginationNext
-              className={
-                endIndex === lastPage ? "pointer-events-none opacity-50" : undefined
-              }
-              onClick={() => {
-                setStartIndex(startIndex + enteriesPerPage); 
-                setEndIndex(endIndex + enteriesPerPage); 
-              }} />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+              <PaginationItem>
+                <PaginationNext
+                  className={
+                    endIndex === lastPage ? "pointer-events-none opacity-50" : undefined
+                  }
+                  onClick={() => {
+                    setStartIndex(startIndex + enteriesPerPage);
+                    setEndIndex(endIndex + enteriesPerPage);
+                  }} />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       </div>
     </>
