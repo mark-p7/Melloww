@@ -26,9 +26,6 @@ export default function Navbar() {
           <Link className={`inline-flex h-13 items-center justify-center rounded-md mx-3 text-lg font-bold cursor-pointer relative before:absolute ${pathname == "/create" ? "before:bg-amber-200" : "before:bg-sky-200"} before:bottom-0 before:right-0 before:h-full before:w-4/5 before:origin-bottom before:scale-y-[0.35] hover:before:scale-y-100 before:transition-transform before:ease-in-out before:duration-500`} href="/create">
             <span className="relative">Create</span>
           </Link>
-          <Link className={`inline-flex h-13 items-center justify-center rounded-md mx-3 text-lg font-bold cursor-pointer relative before:absolute ${pathname == "/private" ? "before:bg-amber-200" : "before:bg-sky-200"} before:bottom-0 before:right-0 before:h-full before:w-4/5 before:origin-bottom before:scale-y-[0.35] hover:before:scale-y-100 before:transition-transform before:ease-in-out before:duration-500`} href="#">
-            <span className="relative">Private</span>
-          </Link>
           <Link className={`inline-flex h-13 items-center justify-center rounded-md mx-3 text-lg font-bold cursor-pointer relative before:absolute ${pathname == "/account" ? "before:bg-amber-200" : "before:bg-sky-200"} before:bottom-0 before:right-0 before:h-full before:w-4/5 before:origin-bottom before:scale-y-[0.35] hover:before:scale-y-100 before:transition-transform before:ease-in-out before:duration-500`} href="/account">
             <span className="relative">Account</span>
           </Link>
