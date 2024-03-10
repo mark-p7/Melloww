@@ -196,6 +196,18 @@ app.get('/journals', asyncWrapper(async (req, res) => {
     res.json(journals);
 }));
 
+// Get public journals
+app.get('/journals/public', asyncWrapper(async (req, res) => {
+    const journals = await JournalModel.find();
+    const publicJournals = [];
+    for(let i = 0; i < journals.length; i++) {
+        if(journals[i].Public){
+            publicJournals.push(journals[i])
+        }
+    }
+    res.json(publicJournals);
+}));
+
 // Get a specific journal by ID
 app.get('/journals/:id', asyncWrapper(async (req, res) => {
     const journal = await JournalModel.findById(req.params.id);
