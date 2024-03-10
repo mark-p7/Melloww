@@ -22,7 +22,7 @@ export default function Feed() {
   const [journals, setJournals] = useState<Journal[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [recordsPerPage] = useState(6);
+  const [recordsPerPage] = useState(1);
 
   // Example journals data - replace this with actual data fetching logic
   // const [journals, setJournals] = useState([
@@ -70,7 +70,7 @@ export default function Feed() {
 
           {/* Cards container */}
           <Records journals={currentRecords}/>
-          <div className="justify-self-center"><Pagination
+          <div><Pagination
             nPages={nPages}
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}

@@ -7,29 +7,7 @@ interface PaginationProps {
 }
 
 const Pagination: React.FC<PaginationProps> = ({ nPages, currentPage, setCurrentPage }) => {
-    const pageNumbers = Array.from({ length: nPages }, (_, index) => index + 1);
-
-    // ...
-    
-    for (let i = 0; i < pageNumbers.length; i++) {
-      const pgNumber = pageNumbers[i];
-    
-      const isActive = currentPage === pgNumber;
-      const liClassName = `page-item ${isActive ? 'active' : ''}`;
-    
-      return (
-        <li key={pgNumber} className={liClassName}>
-          <a
-            onClick={() => setCurrentPage(pgNumber)}
-            className="page-link"
-            href="#"
-          >
-            {pgNumber}
-          </a>
-        </li>
-      );
-    }
-
+  // Function declarations
   const goToNextPage = () => {
     if (currentPage !== nPages) setCurrentPage((prevPage) => prevPage + 1);
   };
@@ -38,6 +16,29 @@ const Pagination: React.FC<PaginationProps> = ({ nPages, currentPage, setCurrent
     if (currentPage !== 1) setCurrentPage((prevPage) => prevPage - 1);
   };
 
+  const pageNumbers = Array.from({ length: nPages }, (_, index) => index + 1);
+
+  const pageItems: JSX.Element[] = [];
+
+  for (let i = 0; i < pageNumbers.length; i++) {
+    const pgNumber = pageNumbers[i];
+    const isActive = currentPage === pgNumber;
+    const liClassName = `page-item ${isActive ? 'active' : ''}`;
+
+    pageItems.push(
+      <li key={pgNumber} className={liClassName}>
+        <a
+          onClick={() => setCurrentPage(pgNumber)}
+          className="page-link"
+          href="#"
+        >
+          {pgNumber}
+        </a>
+      </li>
+    );
+  }
+
+  // Render the page items
   return (
     <nav>
       <ul className="pagination justify-content-center">
@@ -46,17 +47,7 @@ const Pagination: React.FC<PaginationProps> = ({ nPages, currentPage, setCurrent
             Previous
           </a>
         </li>
-        {pageNumbers.map((pgNumber) => (
-          <li key={pgNumber} className={`page-item ${currentPage === pgNumber ? 'active' : ''}`}>
-            <a
-              onClick={() => setCurrentPage(pgNumber)}
-              className="page-link"
-              href="#"
-            >
-              {pgNumber}
-            </a>
-          </li>
-        ))}
+        {pageItems}
         <li className="page-item">
           <a className="page-link" onClick={goToNextPage} href="#">
             Next
