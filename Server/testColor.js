@@ -57,13 +57,4 @@ async function getCssColorFromMood(journalDescription) {
   }
 }
 
-// // Testing with example mood description
-// getCssColorFromMood("my mother scolded me today. im angry")
-//   .then((hexCode) => {
-//     console.log(hexCode);
-//   })
-//   .catch((error) => {
-//     console.error(error.message);
-//   });
-
 module.exports = { getCssColorFromMood };

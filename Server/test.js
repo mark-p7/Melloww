@@ -37,28 +37,4 @@ async function getMentalHealthTips(journalText) {
   }
 }
 
-// // Sample journal entries for testing
-// const journalEntries = [
-//   "Today was a good day. I felt productive and accomplished all my tasks.",
-//   "Feeling a bit overwhelmed with work lately. Need to find a way to manage stress better.",
-//   "I miss spending time with friends and family. Feeling lonely.",
-// ];
-
-// // Function to submit each journal entry and receive mental health tips
-// async function processJournalEntries() {
-//   for (let i = 0; i < journalEntries.length; i++) {
-//     const entry = journalEntries[i];
-//     console.log(`Journal Entry ${i + 1}: ${entry}`);
-//     try {
-//       const tips = await getMentalHealthTips(entry);
-//       console.log("Mental Health Tips:", tips);
-//     } catch (error) {
-//       console.error("Error processing journal entry:", error.message);
-//     }
-//   }
-// }
-
-// // Call the function to process journal entries
-// processJournalEntries();
-
 module.exports = { getMentalHealthTips };
