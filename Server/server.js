@@ -62,46 +62,28 @@ app.get('/', (req, res) => {
     res.send("/");
 });
 
-// Create user
-app.post('/api/user/create', asyncWrapper(async (req, res) => {
-    const { email } = req.body;
-
+// Create a user
+const createUser = async (email) => {
     try {
-        const user = await UserModel.findOne({ email: email })
-
-        if(user == undefined){
-            user = await UserModel.create({
-                email: email
-            })    
-            console.log(user);
-            res.status(200).json(user);
-        } else {
-            res.status(200).json("User found")
-        }
-        
-    } catch (err) {
-        throw new DbError("Cannot create user")
+      const newUser = new UserModel({ username: email, email: email });
+      await newUser.save();
+      return newUser;
+    } catch (error) {
+      throw error;
     }
-}))
+};
 
-// Find user
-app.post('/api/user/find', asyncWrapper(async (req, res) => {
-    const { email } = req.body;
-
-    try {
-        const user = await UserModel.findOne({ email: email })
-
-        if(user != undefined){
-            res.status(200).json(user)
-        } else {
-            res.status(200).json("User not found")
-        }
-        
-    } catch (err) {
-        throw new DbError("Cannot find user")
+// Find a user, if not found create a user
+app.post('/user', asyncWrapper(async (req, res) => {
+    const { identifier } = req.body;
+    let user = await UserModel.findOne({email: identifier});
+    console.log("does this work")
+    if (!user) {
+        user = await createUser(identifier);
     }
 
-}))
+    res.json(user);
+}));
 
 // Post comment
 app.post('/api/comment/create', asyncWrapper(async (req, res) =>  {
@@ -249,28 +231,6 @@ app.get('/journals/random/:id', asyncWrapper(async (req, res) => {
     res.json(randomJournal[0]); // Return the found journal
 }));
 
-const createUser = async (username, email) => {
-    try {
-      const newUser = new UserModel({ username, email });
-      await newUser.save();
-      return newUser;
-    } catch (error) {
-      throw error; // Error handling should be more sophisticated based on your needs
-    }
-  };
-
-  app.get('/users/:identifier', asyncWrapper(async (req, res) => {
-    const identifier = req.params.identifier;
-    let user = await UserModel.findOne({ $or: [{username: identifier}, {email: identifier}] });
-    
-    if (!user) {
-        // Assuming we decide to create a user if not found. 
-        // You'll need to decide how username and email are determined in this scenario.
-        user = await createUser(username, email);
-    }
-
-    res.json(user);
-}));
 
 // Catch all other routes
 app.get('*', asyncWrapper(async (req, res) => {
