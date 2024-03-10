@@ -1,22 +1,25 @@
 import React, { useState } from 'react';
+import { useUser } from "@auth0/nextjs-auth0/client";
 import ReactCardFlip from 'react-card-flip';
 import Picker from "emoji-picker-react";
 import Modal from "react-modal";
 import ToggleButton from '@mui/material/ToggleButton';
+import axios from 'axios';
 
 export default function SubmissionCard() {
+  const { user } = useUser();
   const [flip, setFlip] = useState(false);
   const [selectedColor, setSelectedColor] = useState('#FECBC4');
   const [selectedEmoji, setSelectedEmoji] = useState(null);
   const [selectedPublic, setSelectedPublic] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
-    author: "",
-    title: "",
-    content: "",
-    emote: "",
-    color: "#FECBC4",
-    isPublic: false
+    AuthorId: "1",
+    Title: "",
+    EntryText: "",
+    Emoji: "",
+    Color: "#FECBC4",
+    Public: false
   });
   const handleColorChange = (color) => {
     setSelectedColor(color);
@@ -32,7 +35,7 @@ export default function SubmissionCard() {
     setSelectedEmoji(emojiObject.explicitOriginalTarget.src);
     setFormData((prevData) => ({
       ...prevData,
-      ["emote"]: emojiObject.explicitOriginalTarget.src,
+      ["Emoji"]: emojiObject.explicitOriginalTarget.src,
     }));
     closeModal();
   };
@@ -40,6 +43,16 @@ export default function SubmissionCard() {
   const handleSubmit = (e) => {
     e.preventDefault();
     // You can perform actions with formData here
+    axios.post("http://localhost:8080/journals", {
+      EntryText: formData.EntryText,
+      Title: formData.Title,
+      AuthorId: formData.AuthorId, // Assuming this references an Author collection
+      Emoji: formData.Emoji, // Optional: include if you want to allow users to associate an emoji with the entry
+      Public: formData.Public, // Default to public if not specified
+      Color: formData.Color
+    }).then(res => {
+      console.log(res);
+    })
     console.log("Form submitted with data:", formData);
   };
 
@@ -132,12 +145,12 @@ export default function SubmissionCard() {
           <p className="text-4xl font-bold mb-4">Back</p>
 
           <div className="grid gap-2">
-            <input name="title" className="border rounded-md p-2 text-sm" placeholder="Enter your text here..." value={formData.title} onChange={handleChange} type="text" />
+            <input name="Title" className="border rounded-md p-2 text-sm" placeholder="Enter your text here..." value={formData.Title} onChange={handleChange} type="text" />
             <textarea
-              name="content"
+              name="EntryText"
               className="border rounded-md p-2 text-sm max-h-32" // Adjust max-h-32 as needed
               placeholder="Enter your text here..."
-              value={formData.content}
+              value={formData.EntryText}
               onChange={handleChange}
             />
           </div>
@@ -157,7 +170,6 @@ export default function SubmissionCard() {
 
       <ToggleButton
         value=""
-        selectedPublic={selectedPublic}
         onChange={() => {
           setSelectedPublic(!selectedPublic);
           setFormData((prevData) => ({
