@@ -243,6 +243,47 @@ app.get('/journals', asyncWrapper(async (req, res) => {
     res.json(journals);
 }));
 
+// Randomly select a journal
+app.get('/journals/random', asyncWrapper(async (req, res) => {
+    const journals = await JournalModel.find();
+        // Shuffle array using the Fisher-Yates (Durstenfeld) shuffle algorithm
+        for (let i = journals.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [journals[i], journals[j]] = [journals[j], journals[i]]; // Swap elements
+        }
+    const publicJournals = [];
+    for(let i = 0; i < journals.length; i++) {
+        if(journals[i].Public){
+            publicJournals.push(journals[i])
+        }
+    }
+    res.json(publicJournals);
+}));
+
+app.post('/journals/user', asyncWrapper(async (req, res) => {
+    const journals = await JournalModel.find();
+    const userJournals = [];
+    for(let i = 0; i < journals.length; i++) {
+        if(journals[i].authorId == req.body.userId){
+            userJournals.push(journals[i])
+        }
+    }
+    res.json(userJournals);
+}));
+
+// journals by date
+app.get('/journals/date', asyncWrapper(async (req, res) => {
+    const journals = await JournalModel.find().sort( { 'Date' : -1 } );
+    const publicJournals = [];
+    for(let i = 0; i < journals.length; i++) {
+        if(journals[i].Public){
+            publicJournals.push(journals[i])
+        }
+    }
+    //for loop here
+    res.json(publicJournals);
+}));
+
 // Get public journals
 app.get('/journals/public', asyncWrapper(async (req, res) => {
     const journals = await JournalModel.find();
@@ -291,20 +332,6 @@ app.delete('/journals/:id', asyncWrapper(async (req, res) => {
 }));
 
 
-app.get('/journals/random/:id', asyncWrapper(async (req, res) => {
-    const excludeId = req.params.id; // Extracting the ID to exclude from the path parameter
-
-    const randomJournal = await JournalModel.aggregate([
-        { $match: { _id: { $ne: new mongoose.Types.ObjectId(excludeId) } } }, // Correctly use 'new' keyword
-        { $sample: { size: 1 } } // Randomly select one of the remaining journals
-    ]);
-
-    if (randomJournal.length === 0) {
-        return res.status(404).send('No journal found or no other journals available.');
-    }
-
-    res.json(randomJournal[0]); // Return the found journal
-}));
 
 
 //generate color and tip based on

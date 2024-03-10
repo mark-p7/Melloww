@@ -33,8 +33,8 @@ export default function SubmissionCard() {
     console.log("printing emoji");
     console.log(event);
     console.log(emojiObject);
-    console.log(event.explicitOriginalTarget.src);
-    setSelectedEmoji(event.explicitOriginalTarget.src);
+    // console.log(event.explicitOriginalTarget.src);
+    setSelectedEmoji(emojiObject.imageUrl);
     setFormData((prevData) => ({
       ...prevData,
       ["Emoji"]: emojiObject.emoji,
