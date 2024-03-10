@@ -6,8 +6,16 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { useState, useEffect } from 'react';
 import Navbar from '../ui/Navbar';
 import axios from 'axios';
-import Records from '@/components/ui/journal';
-import Pagination from '@/components/ui/pagination';
+
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 
 interface Journal {
   EntryID: string; // Change this based on your actual data structure
@@ -20,9 +28,9 @@ export default function Feed() {
   const { user, error, isLoading } = useUser();
   const router = useRouter();
   const [journals, setJournals] = useState<Journal[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [recordsPerPage] = useState(1);
+  const enteriesPerPage = 1;
+  const [startIndex, setStartIndex] = useState(0);
+  const [endIndex, setEndIndex] = useState(enteriesPerPage);
 
   // Example journals data - replace this with actual data fetching logic
   // const [journals, setJournals] = useState([
@@ -39,25 +47,20 @@ export default function Feed() {
         setJournals(response.data);
         console.log("Got journals");
         console.log(response.data);
-        setLoading(false);        
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
-  
+
     fetchData();
-  
-  }, []); 
-  
+
+  }, []);
+
   useEffect(() => {
     console.log("Updated Journals:", journals);
   }, [journals]);
 
-  const indexOfLastRecord = currentPage * recordsPerPage;
-  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentRecords = journals.slice(indexOfFirstRecord, indexOfLastRecord);
-  const nPages = Math.ceil(journals.length / recordsPerPage)
-  
+
   return (
     <>
       <Navbar />
@@ -69,12 +72,49 @@ export default function Feed() {
           {/* ... other content */}
 
           {/* Cards container */}
-          <Records journals={currentRecords}/>
-          <div><Pagination
-            nPages={nPages}
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-          /></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 mt-8">
+             {journals.slice(startIndex, endIndex).map((journal) => (
+               <div
+                 key={journal.EntryID}
+                 className="flex flex-col items-center justify-center p-10 rounded-lg shadow-lg"
+                 style={{ width: '250px', backgroundColor: 'rgba(255, 255, 255, 0.5)' }}
+               >
+                 {/* Emoji container */}
+                 <div className="w-20 h-20 flex items-center justify-center rounded mb-4" >
+                   <span className="text-5xl">{journal.Emoji}</span>
+                 </div>
+                 {/* Title */}
+                 <span className="text-md font-bold text-gray-700">
+                   {journal.Title}
+                 </span>
+               </div>
+             ))}
+           </div>
+          <Pagination className='absolute inset-x-0 bottom-0'>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              className={
+                startIndex === 0 ? "pointer-events-none opacity-50" : undefined
+              }
+              onClick={() => {
+                setStartIndex(startIndex - enteriesPerPage);
+                setEndIndex(endIndex - enteriesPerPage);
+              }} />
+          </PaginationItem>
+
+          <PaginationItem>
+            <PaginationNext
+              className={
+                endIndex === (journals.length/enteriesPerPage) ? "pointer-events-none opacity-50" : undefined
+              }
+              onClick={() => {
+                setStartIndex(startIndex + enteriesPerPage); 
+                setEndIndex(endIndex + enteriesPerPage); 
+              }} />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
         </div>
       </div>
     </>

@@ -186,7 +186,6 @@ app.get('/journals/public', asyncWrapper(async (req, res) => {
     const publicJournals = [];
     for(let i = 0; i < journals.length; i++) {
         if(journals[i].Public){
-            console.log("here")
             publicJournals.push(journals[i])
         }
     }
