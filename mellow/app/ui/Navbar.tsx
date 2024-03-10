@@ -9,9 +9,9 @@ export default function Navbar() {
 	const router = useRouter();
 	
 	// If the user is not logged in, redirect to the login page
-	if (!user && !isLoading) {
-		router.push("/login");
-	}
+	// if (!user && !isLoading) {
+	// 	router.push("/login");
+	// }
 
   return (
     <nav

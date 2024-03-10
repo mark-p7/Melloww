@@ -1,5 +1,5 @@
 "use client";
-import { useUser } from '@auth0/nextjs-auth0/client';
+import { useUser } from "@auth0/nextjs-auth0/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -67,12 +67,11 @@ export default function Feed() {
     <>
       <Navbar />
       <div className="w-full h-[calc(100% - 80px)] flex flex-col items-center py-8 px-4 lg:px-32">
-        <div className="w-full max-w-screen-xl"> {/* Adjust max width as needed */}
-
-          <h1 className="text-left font-bold tracking-tighter text-5xl mb-5">
-          </h1>
+        <div className="w-full max-w-screen-xl">
+          {" "}
+          {/* Adjust max width as needed */}
+          <h1 className="text-left font-bold tracking-tighter text-5xl mb-5"></h1>
           {/* ... other content */}
-
           {/* Cards container */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 mt-8">
              {journals.slice(startIndex, endIndex).map((journal) => (
