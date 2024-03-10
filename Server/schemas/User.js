@@ -26,10 +26,16 @@ const User = new Schema({
       ref: "Journal",
     },
   ],
+  likedJournals: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Journal",
+    },
+  ],
   commentIds: [
     {
-        type: Schema.Types.ObjectId,
-        ref: "Comment"
+      type: Schema.Types.ObjectId,
+      ref: "Comment"
     }
   ]
 });

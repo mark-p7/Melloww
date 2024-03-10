@@ -1,18 +1,12 @@
 const express = require("express");
-const path = require("path");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const db = require("./database/index.js");
-const fs = require("fs");
-const https = require("https");
 const http = require("http");
-const { Server } = require("socket.io");
 const cors = require("cors");
 const UserModel = require("./schemas/User.js");
 const JournalModel = require("./schemas/Journal.js");
 const CommentModel = require("./schemas/Comment.js");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const { getCssColorFromMood } = require("./ai/generateColor.js");
 const { getMentalHealthTips } = require("./ai/generateTip.js");
@@ -78,44 +72,58 @@ app.get("/", (req, res) => {
   res.send("/");
 });
 
+function extractNickname(email) {
+    return email.split('@')[0];
+}
+
 // Create a user
 const createUser = async (email) => {
     try {
-      const newUser = new UserModel({ username: email, email: email });
-      await newUser.save();
-      return newUser;
+        const newUser = new UserModel({ username: email, email: email });
+        await newUser.save();
+        return newUser;
     } catch (error) {
-      throw error;
+        throw error;
     }
 };
 
 // Find a user, if not found create a user
 app.post('/user', asyncWrapper(async (req, res) => {
     const { identifier } = req.body;
-    let user = await UserModel.findOne({email: identifier});
-    console.log("does this work")
+    let user = await UserModel.findOne({ email: identifier });
     if (!user) {
-        user = await createUser(identifier);
+        user = await createUser(extractNickname(identifier));
     }
 
     res.json(user);
 }));
 
+// Update name of user
+app.post('/user/updateName', asyncWrapper(async (req, res) => {
+    const { identifier, username } = req.body;
+    let user = await UserModel.findOne({ email: identifier });
+    if (!user) {
+        throw new NotFoundError("User not found")
+    }
+    user.username = username;
+    await user.save();
+    res.status(201).json(user);
+}));
+
 // Post comment
-app.post('/api/comment/create', asyncWrapper(async (req, res) =>  {
+app.post('/api/comment/create', asyncWrapper(async (req, res) => {
     const { userId, journalId, commentText } = req.body;
 
     try {
         const user = await UserModel.findOne({ _id: userId })
 
-        const journal = await JournalModel.findOne({ _id: journalId})
+        const journal = await JournalModel.findOne({ _id: journalId })
 
         const comment = await CommentModel.create({
+            authorId: userId,
             author: user.username,
             commentText: commentText
         })
-
-        console.log(comment);
 
         user.commentIds.push(comment._id);
         journal.CommentID.push(comment._id);
@@ -131,18 +139,18 @@ app.post('/api/comment/create', asyncWrapper(async (req, res) =>  {
 }));
 
 // Get comments by date
-app.post('/api/comment/getByDate/:id', asyncWrapper(async (req, res) =>  {
+app.post('/api/comment/getByDate/:id', asyncWrapper(async (req, res) => {
     try {
         const journal = await JournalModel.findById(req.params.id)
 
-        if(!journal){
+        if (!journal) {
             return
         }
 
         const commentIds = journal.CommentID;
         const comments = [];
-        for(let i = 0; i < commentIds.length; i++) {
-            const comment = await CommentModel.findOne({_id: commentIds[i]})
+        for (let i = 0; i < commentIds.length; i++) {
+            const comment = await CommentModel.findOne({ _id: commentIds[i] })
             comments.push(comment)
         }
 
@@ -153,14 +161,14 @@ app.post('/api/comment/getByDate/:id', asyncWrapper(async (req, res) =>  {
 }));
 
 // Get comments by likes
-app.get('/api/comment/getByLikes/:id', asyncWrapper(async (req, res) =>  {
+app.get('/api/comment/getByLikes/:id', asyncWrapper(async (req, res) => {
     try {
         const journal = await JournalModel.findById(req.params.id)
 
         const commentIds = journal.CommentID;
         const comments = [];
-        for(let i = 0; i < commentIds.length; i++) {
-            const comment = await CommentModel.findOne({_id: commentIds[i]})
+        for (let i = 0; i < commentIds.length; i++) {
+            const comment = await CommentModel.findOne({ _id: commentIds[i] })
             comments.push(comment)
         }
 
@@ -172,22 +180,61 @@ app.get('/api/comment/getByLikes/:id', asyncWrapper(async (req, res) =>  {
     }
 }));
 
-// Increase likes
-app.put('/comment/like/:id', asyncWrapper(async (req, res) => {
-    try{
-        const comment = await CommentModel.findById(req.params.id);
-        if(!comment) {
-            return res.status(404).send("Comment not found")
+// Increase likes Comment
+app.post('/api/comment/like', asyncWrapper(async (req, res) => {
+    try {
+        const user = await UserModel.findById(req.body.userId);
+        const comment = await CommentModel.findById(req.body.commentId);
+
+        if (!comment || !user) {
+            return res.status(404).send("Comment or User not found")
         }
 
-        comment.likes++;
+        if (comment.usersWhoLiked == undefined) {
+            comment.usersWhoLiked = [];
+            await comment.save();
+        }
+
+        if (comment.usersWhoLiked.includes(req.body.userId)) {
+            comment.usersWhoLiked = comment.usersWhoLiked.filter((id) => id !== req.body.userId);
+            comment.likes--;
+        } else {
+            comment.usersWhoLiked.push(req.body.userId);
+            comment.likes++;
+        }
 
         await comment.save();
-
+        return res.status(200).json(comment);
     } catch (err) {
         throw new DbError("Cannot like comment")
     }
 
+}));
+
+// Increase likes Journal
+app.post('/api/journal/like', asyncWrapper(async (req, res) => {
+    try {
+        const user = await UserModel.findById(req.body.userId);
+        const journal = await JournalModel.findById(req.body.journalId);
+
+        if (!journal || !user) {
+            return res.status(404).send("Journal or User not found")
+        }
+
+        if (user.likedJournals && user.likedJournals.includes(req.body.journalId)) {
+            journal.Likes--;
+            user.likedJournals = user.likedJournals.filter((id) => id != req.body.journalId);
+        } else {
+            journal.Likes++;
+            user.likedJournals.push(req.body.journalId);
+        }
+
+        await journal.save();
+        await user.save();
+        return res.status(200).json(journal);
+    } catch (err) {
+        throw new DbError("Cannot like comment")
+    }
 }));
 
 //  Get all journals
@@ -246,7 +293,7 @@ app.delete('/journals/:id', asyncWrapper(async (req, res) => {
 
 app.get('/journals/random/:id', asyncWrapper(async (req, res) => {
     const excludeId = req.params.id; // Extracting the ID to exclude from the path parameter
-    
+
     const randomJournal = await JournalModel.aggregate([
         { $match: { _id: { $ne: new mongoose.Types.ObjectId(excludeId) } } }, // Correctly use 'new' keyword
         { $sample: { size: 1 } } // Randomly select one of the remaining journals
