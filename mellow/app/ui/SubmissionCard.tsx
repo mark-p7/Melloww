@@ -14,7 +14,7 @@ export default function SubmissionCard() {
   const [selectedPublic, setSelectedPublic] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
-    AuthorId: "1",
+    AuthorId: "",
     Title: "",
     EntryText: "",
     Emoji: "",
@@ -78,7 +78,7 @@ export default function SubmissionCard() {
     alignItems: 'center',
     justifyContent: 'center',
     width: '60%',
-    height: '800px',
+    height: '600px',
     //backgroundColor: '#e6e6e6',
     borderRadius: '8px',
   };
@@ -101,98 +101,102 @@ export default function SubmissionCard() {
       maxWidth: "80%",
       margin: "auto",
       top: "50%",
-      left: "50%",
+      left: "13%",
       transform: "translate(-50%, -50%)",
     },
   };
 
   return (
-    <div className="flex items-center justify-center flex-col h-screen p-4">
-      {/* Color picker */}
-      <input
-        type="color"
-        value={selectedColor}
-        onChange={(e) => handleColorChange(e.target.value)}
-      />
+    <>
+      <div className="flex items-center justify-center flex-row p-4 py-32">
+        {/* Color picker */}
+        <input
+          type="color"
+          value={selectedColor}
+          onChange={(e) => handleColorChange(e.target.value)}
+          className="rounded-full w-28 h-28"/>
 
-      <ReactCardFlip isFlipped={flip} flipDirection="vertical" containerStyle={containerStyle}>
-        {/* Front side */}
-        <div className="front-card m-4 p-4 rounded-md text-center shadow-xl shadow-black/60" style={cardStyle}>
-          <p className="text-4xl font-bold mb-4"></p>
+        <ReactCardFlip isFlipped={flip} flipDirection="vertical" containerStyle={containerStyle}>
+          {/* Front side */}
+          <div className="front-card m-4 p-4 rounded-md text-center shadow-xl shadow-black/60" style={cardStyle}>
+            <p className="text-4xl font-bold mb-4"></p>
 
-          <div className="picker-container flex items-center justify-center p-4 h-full">
-            <button className="flex items-center justify-center" onClick={openModal}>
-              {selectedEmoji && <img className="selected-emoji w-12 h-12" src={selectedEmoji} alt="Selected Emoji" />}
-              {!selectedEmoji && <span className="rounded-full p-10 border border-black bg-transparent text-5xl focus:outline-none">Pick an emote</span>}
-            </button>
-            <Modal
-              isOpen={isModalOpen}
-              onRequestClose={closeModal}
-              contentLabel="Emoji Picker Modal"
-              style={modalStyles}
+            <div className="picker-container flex items-center justify-center p-4 h-full">
+              <button className="flex items-center justify-center" onClick={openModal}>
+                {selectedEmoji && <img className="selected-emoji w-12 h-12" src={selectedEmoji} alt="Selected Emoji"/>}
+                {!selectedEmoji &&
+                    <span className="rounded-full p-10 border border-black bg-transparent text-5xl focus:outline-none">Pick an emote</span>}
+              </button>
+              <Modal
+                isOpen={isModalOpen}
+                onRequestClose={closeModal}
+                contentLabel="Emoji Picker Modal"
+                style={modalStyles}
+              >
+                <div>
+                  <Picker onEmojiClick={onEmojiClick}/>
+                  <button onClick={closeModal}>Close Modal</button>
+                </div>
+              </Modal>
+            </div>
+            <button
+              className="w-full px-4 py-2 text-s font-bold bg-purple-200 rounded-md mt-4 mt-auto"
+              onClick={() => setFlip(!flip)}
             >
-              <div>
-                <Picker onEmojiClick={onEmojiClick} />
-                <button onClick={closeModal}>Close Modal</button>
-              </div>
-            </Modal>
+              Flip
+            </button>
           </div>
-          <button
-            className="w-full px-4 py-2 text-s font-bold bg-purple-200 rounded-md mt-4 mt-auto"
-            onClick={() => setFlip(!flip)}
-          >
-            Flip
-          </button>
-        </div>
 
-        {/* Back side */}
-        <div className="back-card m-4 p-4 rounded-md text-center shadow-xl shadow-black/60" style={cardStyle}>
-          <p className="text-4xl font-bold mb-4"></p>
+          {/* Back side */}
+          <div className="back-card m-4 p-4 rounded-md text-center shadow-xl shadow-black/60" style={cardStyle}>
+            <p className="text-4xl font-bold mb-4"></p>
 
-          <div className="grid gap-10">
-            <input
-              name="Title"
-              className="border rounded-md p-2 text-5xl" // Adjust text-base or other size classes as needed
-              placeholder="Name your journal entry..."
-              value={formData.Title}
-              onChange={handleChange}
-              type="text"
-            />
-            <textarea
-              name="EntryText"
-              className="border rounded-md p-2 text-2xl h-44 max-h-80" // Adjust text-base or other size classes as needed
-              placeholder="Describe your day..."
-              value={formData.EntryText}
-              onChange={handleChange}
-            />
+            <div className="grid gap-10">
+              <input
+                name="Title"
+                className="border rounded-md p-2 text-4xl" // Adjust text-base or other size classes as needed
+                placeholder="Name your journal entry..."
+                value={formData.Title}
+                onChange={handleChange}
+                type="text"/>
+              <textarea
+                name="EntryText"
+                className="border rounded-md p-2 text-2xl h-44 resize-none" // Adjust text-base or other size classes as needed
+                placeholder="Describe your day..."
+                value={formData.EntryText}
+                onChange={handleChange}/>
+            </div>
+            <button
+              className="w-full px-4 py-2 text-s font-bold bg-purple-200 rounded-md mt-4 mt-auto"
+              onClick={() => setFlip(!flip)}
+            >
+              Flip
+            </button>
           </div>
-          <button
-            className="w-full px-4 py-2 text-s font-bold bg-purple-200 rounded-md mt-4 mt-auto"
-            onClick={() => setFlip(!flip)}
-          >
-            Flip
-          </button>
-        </div>
-      </ReactCardFlip>
+        </ReactCardFlip>
 
+
+        <ToggleButton
+          value=""
+          onChange={() => {
+            setSelectedPublic(!selectedPublic);
+            setFormData((prevData) => ({
+              ...prevData,
+              ["Public"]: !selectedPublic,
+            }));
+          }}
+        >
+          {selectedPublic ? "Public" : "Private"}
+        </ToggleButton>
+
+      </div>
       {/* Submit button */}
-      <button className="w-40 px-4 py-2 text-xl font-bold bg-purple-200 rounded-md" type="submit" onClick={handleSubmit}>
-        Submit
-      </button>
+      <div className="flex flex-col items-center">
+        <button className="w-40 px-4 py-2 text-xl font-bold bg-purple-200 rounded-md" type="submit" onClick={handleSubmit}>
+          Submit
+        </button>
+      </div>
+    </>
 
-      <ToggleButton
-        value=""
-        onChange={() => {
-          setSelectedPublic(!selectedPublic);
-          setFormData((prevData) => ({
-            ...prevData,
-            ["Public"]: !selectedPublic,
-          }));
-        }}
-      >
-        {selectedPublic ? "Public" : "Private"}
-      </ToggleButton>
-
-    </div>
   );
 }
