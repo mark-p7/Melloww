@@ -14,8 +14,8 @@ const CommentModel = require("./schemas/Comment.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
-const { getCssColorFromMood } = require("./testColor.js");
-const { getMentalHealthTips } = require("./test.js");
+const { getCssColorFromMood } = require("./ai/generateColor.js");
+const { getMentalHealthTips } = require("./ai/generateTip.js");
 
 // Errors
 const {
@@ -94,14 +94,14 @@ async function feed(journal) {
 }
 
 // Usage example
-feed("Feeling down after a tough day at work.")
-  .then((results) => {
-    const [color, tip] = results;
-    console.log(`Color: ${color}, Tip: ${tip}`);
-  })
-  .catch((error) => {
-    console.error(error.message);
-  });
+// feed("Feeling down after a tough day at work.")
+//   .then((results) => {
+//     const [color, tip] = results;
+//     console.log(`Color: ${color}, Tip: ${tip}`);
+//   })
+//   .catch((error) => {
+//     console.error(error.message);
+//   });
 
 // Catch all other routes
 app.get(
