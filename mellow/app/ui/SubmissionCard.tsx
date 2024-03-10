@@ -48,23 +48,32 @@ export default function SubmissionCard() {
   const closeModal = () => setIsModalOpen(false);
 
   const containerStyle = {
-    width: '60%',  // Customize the width as needed
-    height: '600px', // Customize the height as needed
-    backgroundColor: '#e6e6e6', // Customize the background color
-    borderRadius: '8px', // Customize the border radius
-    //boxShadow: '0 4px 8px rgba(0, 0, 0, 0.5)', // Customize the box shadow
-    // Add more styles as needed
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '60%',
+    height: '800px',
+    backgroundColor: '#e6e6e6',
+    borderRadius: '8px',
   };
 
   const cardStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',  // Center horizontally
+    justifyContent: 'center',  // Center vertically
     backgroundColor: selectedColor,
-    textColor: "#000000",
+    color: "#000000",
+    width: "80%",
+    height: "80%",
+    margin: 'auto',  // Center horizontally
   };
 
   const modalStyles = {
     content: {
       width: "fit-content",
-      maxWidth: "80%", // Adjust as needed
+      maxWidth: "80%",
       margin: "auto",
       top: "50%",
       left: "50%",
@@ -73,24 +82,23 @@ export default function SubmissionCard() {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen">
-
-        {/* Color picker */}
-        <input
-          type="color"
-          value={selectedColor}
-          onChange={(e) => handleColorChange(e.target.value)}
-        />
+    <div className="flex items-center justify-center flex-col h-screen p-4">
+      {/* Color picker */}
+      <input
+        type="color"
+        value={selectedColor}
+        onChange={(e) => handleColorChange(e.target.value)}
+      />
 
       <ReactCardFlip isFlipped={flip} flipDirection="vertical" containerStyle={containerStyle}>
         {/* Front side */}
-        <div className="m-4 p-4 rounded-md text-center drop-shadow-lg" style={cardStyle}>
+        <div className="front-card m-4 p-4 rounded-md text-center drop-shadow-lg" style={cardStyle}>
           <p className="text-4xl font-bold mb-4">Front</p>
 
-          <div className="picker-container flex items-center justify-center">
-            <button className="flex items-center rounded-full p-2 text-white focus:outline-none" onClick={openModal}>
+          <div className="picker-container flex items-center justify-center p-4">
+            <button className="flex items-center justify-center" onClick={openModal}>
               {selectedEmoji && <img className="selected-emoji w-12 h-12" src={selectedEmoji} alt="Selected Emoji" />}
-              {!selectedEmoji && <span>Pick an emote</span>}
+              {!selectedEmoji && <span className="rounded-full p-2 border border-black bg-transparent text-black focus:outline-none">Pick an emote</span>}
             </button>
             <Modal
               isOpen={isModalOpen}
@@ -105,33 +113,41 @@ export default function SubmissionCard() {
             </Modal>
           </div>
           <button
-            className="w-40 px-4 py-2 text-xl font-bold bg-purple-200 rounded-md"
+            className="w-full px-4 py-2 text-s font-bold bg-purple-200 rounded-md mt-4"
             onClick={() => setFlip(!flip)}
           >
             Flip
           </button>
-
         </div>
 
         {/* Back side */}
-        <div className="m-4 p-4 rounded-md text-center drop-shadow-lg" style={cardStyle}>
+        <div className="back-card m-4 p-4 rounded-md text-center drop-shadow-lg" style={cardStyle}>
           <p className="text-4xl font-bold mb-4">Back</p>
 
           <div className="grid gap-2">
             <input name="title" className="border rounded-md p-2 text-sm" placeholder="Enter your text here..." value={formData.title} onChange={handleChange} type="text" />
-            <textarea name="content" className="border rounded-md p-2 text-sm" placeholder="Enter your text here..." value={formData.content} onChange={handleChange}/>
+            <textarea
+              name="content"
+              className="border rounded-md p-2 text-sm max-h-32" // Adjust max-h-32 as needed
+              placeholder="Enter your text here..."
+              value={formData.content}
+              onChange={handleChange}
+            />
           </div>
-
           <button
-            className="w-40 px-4 py-2 text-xl font-bold bg-purple-200 rounded-md"
+            className="w-full px-4 py-2 text-s font-bold bg-purple-200 rounded-md mt-4"
             onClick={() => setFlip(!flip)}
           >
             Flip
           </button>
         </div>
       </ReactCardFlip>
-      <button type="submit" onClick={handleSubmit}>Submit</button>
-    </div>
 
+      {/* Submit button */}
+      <button className="w-40 px-4 py-2 text-xl font-bold bg-purple-200 rounded-md" type="submit" onClick={handleSubmit}>
+        Submit
+      </button>
+
+    </div>
   );
-};
+}
