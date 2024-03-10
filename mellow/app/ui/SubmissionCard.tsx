@@ -7,7 +7,7 @@ import ToggleButton from '@mui/material/ToggleButton';
 import axios from 'axios';
 
 export default function SubmissionCard() {
-  const { user } = useUser();
+  const { user, isLoading } = useUser();
   const [flip, setFlip] = useState(false);
   const [selectedColor, setSelectedColor] = useState('#FECBC4');
   const [selectedEmoji, setSelectedEmoji] = useState(null);
@@ -29,13 +29,15 @@ export default function SubmissionCard() {
     }));
   };
 
-  const onEmojiClick = (event, emojiObject) => {
+  const onEmojiClick = (emojiObject, event) => {
     console.log("printing emoji");
-    console.log(emojiObject.explicitOriginalTarget.src);
-    setSelectedEmoji(emojiObject.explicitOriginalTarget.src);
+    console.log(event);
+    console.log(emojiObject);
+    console.log(event.explicitOriginalTarget.src);
+    setSelectedEmoji(event.explicitOriginalTarget.src);
     setFormData((prevData) => ({
       ...prevData,
-      ["Emoji"]: emojiObject.explicitOriginalTarget.src,
+      ["Emoji"]: emojiObject.emoji,
     }));
     closeModal();
   };
@@ -43,17 +45,20 @@ export default function SubmissionCard() {
   const handleSubmit = (e) => {
     e.preventDefault();
     // You can perform actions with formData here
-    axios.post("http://localhost:8080/journals", {
-      EntryText: formData.EntryText,
-      Title: formData.Title,
-      AuthorId: formData.AuthorId, // Assuming this references an Author collection
-      Emoji: formData.Emoji, // Optional: include if you want to allow users to associate an emoji with the entry
-      Public: formData.Public, // Default to public if not specified
-      Color: formData.Color
+
+    axios.post("http://localhost:8080/user", {
+      identifier: user?.email
     }).then(res => {
       console.log(res);
+      axios.post("http://localhost:8080/journals", {
+        EntryText: formData.EntryText,
+        Title: formData.Title,
+        AuthorId: res.data._id, // Assuming this references an Author collection
+        Emoji: formData.Emoji, // Optional: include if you want to allow users to associate an emoji with the entry
+        Public: formData.Public, // Default to public if not specified
+        Color: formData.Color
+      }).then(res => console.log("Form submitted with data:", res))
     })
-    console.log("Form submitted with data:", formData);
   };
 
   const handleChange = (e) => {
@@ -112,7 +117,7 @@ export default function SubmissionCard() {
 
       <ReactCardFlip isFlipped={flip} flipDirection="vertical" containerStyle={containerStyle}>
         {/* Front side */}
-        <div className="front-card m-4 p-4 rounded-md text-center drop-shadow-lg" style={cardStyle}>
+        <div className="front-card m-4 p-4 rounded-md text-center shadow-xl shadow-black/60" style={cardStyle}>
           <p className="text-4xl font-bold mb-4">Front</p>
 
           <div className="picker-container flex items-center justify-center p-4">
@@ -141,7 +146,7 @@ export default function SubmissionCard() {
         </div>
 
         {/* Back side */}
-        <div className="back-card m-4 p-4 rounded-md text-center drop-shadow-lg" style={cardStyle}>
+        <div className="back-card m-4 p-4 rounded-md text-center shadow-xl shadow-black/60" style={cardStyle}>
           <p className="text-4xl font-bold mb-4">Back</p>
 
           <div className="grid gap-2">
@@ -174,7 +179,7 @@ export default function SubmissionCard() {
           setSelectedPublic(!selectedPublic);
           setFormData((prevData) => ({
             ...prevData,
-            ["isPublic"]: !selectedPublic,
+            ["Public"]: !selectedPublic,
           }));
         }}
       >
