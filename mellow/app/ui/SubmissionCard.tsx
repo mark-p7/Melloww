@@ -1,31 +1,43 @@
 import React, { useState } from 'react';
+import { useUser } from "@auth0/nextjs-auth0/client";
 import ReactCardFlip from 'react-card-flip';
 import Picker from "emoji-picker-react";
 import Modal from "react-modal";
+import ToggleButton from '@mui/material/ToggleButton';
+import axios from 'axios';
 
 export default function SubmissionCard() {
+  const { user, isLoading } = useUser();
   const [flip, setFlip] = useState(false);
   const [selectedColor, setSelectedColor] = useState('#FECBC4');
   const [selectedEmoji, setSelectedEmoji] = useState(null);
-  //const [showPicker, setShowPicker] = useState(false);
+  const [selectedPublic, setSelectedPublic] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
-    author: "",
-    title: "",
-    content: "",
-    emote: "",
+    AuthorId: "",
+    Title: "",
+    EntryText: "",
+    Emoji: "",
+    Color: "#FECBC4",
+    Public: false
   });
   const handleColorChange = (color) => {
     setSelectedColor(color);
-  };
-
-  const onEmojiClick = (event, emojiObject) => {
-    console.log("printing emoji");
-    console.log(emojiObject.explicitOriginalTarget.src);
-    setSelectedEmoji(emojiObject.explicitOriginalTarget.src);
     setFormData((prevData) => ({
       ...prevData,
-      ["emote"]: emojiObject.explicitOriginalTarget.src,
+      ["color"]: color,
+    }));
+  };
+
+  const onEmojiClick = (emojiObject, event) => {
+    console.log("printing emoji");
+    console.log(event);
+    console.log(emojiObject);
+    console.log(event.explicitOriginalTarget.src);
+    setSelectedEmoji(event.explicitOriginalTarget.src);
+    setFormData((prevData) => ({
+      ...prevData,
+      ["Emoji"]: emojiObject.emoji,
     }));
     closeModal();
   };
@@ -33,7 +45,20 @@ export default function SubmissionCard() {
   const handleSubmit = (e) => {
     e.preventDefault();
     // You can perform actions with formData here
-    console.log("Form submitted with data:", formData);
+
+    axios.post("http://localhost:8080/user", {
+      identifier: user?.email
+    }).then(res => {
+      console.log(res);
+      axios.post("http://localhost:8080/journals", {
+        EntryText: formData.EntryText,
+        Title: formData.Title,
+        AuthorId: res.data._id, // Assuming this references an Author collection
+        Emoji: formData.Emoji, // Optional: include if you want to allow users to associate an emoji with the entry
+        Public: formData.Public, // Default to public if not specified
+        Color: formData.Color
+      }).then(res => console.log("Form submitted with data:", res))
+    })
   };
 
   const handleChange = (e) => {
@@ -53,8 +78,8 @@ export default function SubmissionCard() {
     alignItems: 'center',
     justifyContent: 'center',
     width: '60%',
-    height: '800px',
-    backgroundColor: '#e6e6e6',
+    height: '600px',
+    //backgroundColor: '#e6e6e6',
     borderRadius: '8px',
   };
 
@@ -76,78 +101,102 @@ export default function SubmissionCard() {
       maxWidth: "80%",
       margin: "auto",
       top: "50%",
-      left: "50%",
+      left: "13%",
       transform: "translate(-50%, -50%)",
     },
   };
 
   return (
-    <div className="flex items-center justify-center flex-col h-screen p-4">
-      {/* Color picker */}
-      <input
-        type="color"
-        value={selectedColor}
-        onChange={(e) => handleColorChange(e.target.value)}
-      />
+    <>
+      <div className="flex items-center justify-center flex-row p-4 py-32">
+        {/* Color picker */}
+        <input
+          type="color"
+          value={selectedColor}
+          onChange={(e) => handleColorChange(e.target.value)}
+          className="rounded-full w-28 h-28"/>
 
-      <ReactCardFlip isFlipped={flip} flipDirection="vertical" containerStyle={containerStyle}>
-        {/* Front side */}
-        <div className="front-card m-4 p-4 rounded-md text-center drop-shadow-lg" style={cardStyle}>
-          <p className="text-4xl font-bold mb-4">Front</p>
+        <ReactCardFlip isFlipped={flip} flipDirection="vertical" containerStyle={containerStyle}>
+          {/* Front side */}
+          <div className="front-card m-4 p-4 rounded-md text-center shadow-xl shadow-black/60" style={cardStyle}>
+            <p className="text-4xl font-bold mb-4"></p>
 
-          <div className="picker-container flex items-center justify-center p-4">
-            <button className="flex items-center justify-center" onClick={openModal}>
-              {selectedEmoji && <img className="selected-emoji w-12 h-12" src={selectedEmoji} alt="Selected Emoji" />}
-              {!selectedEmoji && <span className="rounded-full p-2 border border-black bg-transparent text-black focus:outline-none">Pick an emote</span>}
-            </button>
-            <Modal
-              isOpen={isModalOpen}
-              onRequestClose={closeModal}
-              contentLabel="Emoji Picker Modal"
-              style={modalStyles}
+            <div className="picker-container flex items-center justify-center p-4 h-full">
+              <button className="flex items-center justify-center" onClick={openModal}>
+                {selectedEmoji && <img className="selected-emoji w-12 h-12" src={selectedEmoji} alt="Selected Emoji"/>}
+                {!selectedEmoji &&
+                    <span className="rounded-full p-10 border border-black bg-transparent text-5xl focus:outline-none">Pick an emote</span>}
+              </button>
+              <Modal
+                isOpen={isModalOpen}
+                onRequestClose={closeModal}
+                contentLabel="Emoji Picker Modal"
+                style={modalStyles}
+              >
+                <div>
+                  <Picker onEmojiClick={onEmojiClick}/>
+                  <button onClick={closeModal}>Close Modal</button>
+                </div>
+              </Modal>
+            </div>
+            <button
+              className="w-full px-4 py-2 text-s font-bold bg-purple-200 rounded-md mt-4 mt-auto"
+              onClick={() => setFlip(!flip)}
             >
-              <div>
-                <Picker onEmojiClick={onEmojiClick} />
-                <button onClick={closeModal}>Close Modal</button>
-              </div>
-            </Modal>
+              Flip
+            </button>
           </div>
-          <button
-            className="w-full px-4 py-2 text-s font-bold bg-purple-200 rounded-md mt-4"
-            onClick={() => setFlip(!flip)}
-          >
-            Flip
-          </button>
-        </div>
 
-        {/* Back side */}
-        <div className="back-card m-4 p-4 rounded-md text-center drop-shadow-lg" style={cardStyle}>
-          <p className="text-4xl font-bold mb-4">Back</p>
+          {/* Back side */}
+          <div className="back-card m-4 p-4 rounded-md text-center shadow-xl shadow-black/60" style={cardStyle}>
+            <p className="text-4xl font-bold mb-4"></p>
 
-          <div className="grid gap-2">
-            <input name="title" className="border rounded-md p-2 text-sm" placeholder="Enter your text here..." value={formData.title} onChange={handleChange} type="text" />
-            <textarea
-              name="content"
-              className="border rounded-md p-2 text-sm max-h-32" // Adjust max-h-32 as needed
-              placeholder="Enter your text here..."
-              value={formData.content}
-              onChange={handleChange}
-            />
+            <div className="grid gap-10">
+              <input
+                name="Title"
+                className="border rounded-md p-2 text-4xl" // Adjust text-base or other size classes as needed
+                placeholder="Name your journal entry..."
+                value={formData.Title}
+                onChange={handleChange}
+                type="text"/>
+              <textarea
+                name="EntryText"
+                className="border rounded-md p-2 text-2xl h-44 resize-none" // Adjust text-base or other size classes as needed
+                placeholder="Describe your day..."
+                value={formData.EntryText}
+                onChange={handleChange}/>
+            </div>
+            <button
+              className="w-full px-4 py-2 text-s font-bold bg-purple-200 rounded-md mt-4 mt-auto"
+              onClick={() => setFlip(!flip)}
+            >
+              Flip
+            </button>
           </div>
-          <button
-            className="w-full px-4 py-2 text-s font-bold bg-purple-200 rounded-md mt-4"
-            onClick={() => setFlip(!flip)}
-          >
-            Flip
-          </button>
-        </div>
-      </ReactCardFlip>
+        </ReactCardFlip>
 
+
+        <ToggleButton
+          value=""
+          onChange={() => {
+            setSelectedPublic(!selectedPublic);
+            setFormData((prevData) => ({
+              ...prevData,
+              ["Public"]: !selectedPublic,
+            }));
+          }}
+        >
+          {selectedPublic ? "Public" : "Private"}
+        </ToggleButton>
+
+      </div>
       {/* Submit button */}
-      <button className="w-40 px-4 py-2 text-xl font-bold bg-purple-200 rounded-md" type="submit" onClick={handleSubmit}>
-        Submit
-      </button>
+      <div className="flex flex-col items-center">
+        <button className="w-40 px-4 py-2 text-xl font-bold bg-purple-200 rounded-md" type="submit" onClick={handleSubmit}>
+          Submit
+        </button>
+      </div>
+    </>
 
-    </div>
   );
 }
